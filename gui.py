@@ -40,7 +40,8 @@ def main():
     button = tk.Button(window, text="test",)
     button.pack()
 
-    img = video.get_frame()
+    img = video.get_next()
+    print(img)
     panel = tk.Label(window, image=img)
     panel.pack()
 
