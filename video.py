@@ -1,4 +1,5 @@
 import cv2
+import tkinter as tk
 from PIL import Image, ImageTk
 import time
 
@@ -43,7 +44,6 @@ class Video:
             print("There was some error in reading the file")
             print("Video File Frames: {}, Video Object Frames: {}"
                   .format(total_n_frames, self.n_frames))
-
         if DEBUG:
             elapsed_time = round(time.time() - start_time, 2)
             print("video: Elapsed time: {} s"
@@ -54,8 +54,11 @@ class Video:
     ### Public Functions ###
     def get_next(self) -> Image:
         if self.current:
-            self.current = self.current.next
-            return self.current.frame
+            if self.current.next:
+                self.current = self.current.next
+                return self.current.frame
+            else:
+                return None
         else:
             self.current = self.head
             return self.current.frame
@@ -72,7 +75,6 @@ class Video:
     def _append(self, frame: Image, index: int) -> None:
         node = VideoNode(frame, index)
         if self.head:
-            self.tail.prev = self.head
             self.tail.next = node
             node.prev = self.tail
             self.tail = node
@@ -82,11 +84,9 @@ class Video:
 
     def _get_frame(self) -> Image:
         success, frame = self.video_file.read()
-
         if not success:
             print("video(get_frame): End of Video!")
             return None
-
         img = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         img = Image.fromarray(img)
         return img
