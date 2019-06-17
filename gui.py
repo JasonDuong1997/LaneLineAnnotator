@@ -2,8 +2,8 @@ import tkinter as tk
 import cv2
 from PIL import ImageTk, Image
 import numpy as numpy
-from event_callback import *
 
+from event_callback import *
 from video import Video
 
 
@@ -21,9 +21,6 @@ def image_read(path: str):
 
 
 def main():
-    # Initializing Tkinter.
-    # root = tk.Tk()
-
     # Read in video.
     video = Video("test.mp4")
 
@@ -40,15 +37,10 @@ def main():
     panel.pack()
 
     # Binding callbacks.
-    button.bind("<Button-1>", test2)
     panel.bind("<Button-1>", lambda event,
-               video=video,  panel=panel: annotate_frame(event, video, panel))
-    panel.bind("<B1-Motion>", lambda event,
-               video=video, panel=panel: annotate_frame(event, video, panel))
-    panel.bind("<Button-4>", lambda event,
-               video=video, panel=panel: forward_frame(event, video, panel))
-    panel.bind("<B2-Pressed>", lambda event,
-               video=video, panel=panel: reverse_frame(event, video, panel))
+               video=video, panel=panel: cb_lclick(event, video, panel))
+    panel.bind("<MouseWheel>", lambda event,
+               video=video, panel=panel: cb_scroll(event, video, panel))
     # Start main loop.
     window.mainloop()
 
