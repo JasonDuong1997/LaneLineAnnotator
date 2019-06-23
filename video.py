@@ -53,21 +53,33 @@ class Video:
         self.video_file.release()
 
     ### Public Functions ###
-    def get_next(self) -> Image:
-        if self.current and self.current.next:
-            self.current = self.current.next
-            return self.current.frame
-        else:
-            return self.current.frame
-
     def get_prev(self) -> Image:
-        if self.current and self.current.prev:
+        if self.current.prev:
             self.current = self.current.prev
             return self.current.frame
         else:
             return self.current.frame
 
+    def get_curr(self) -> Image:
+        return self.current.frame
+
+    def get_next(self) -> Image:
+        if self.current.next:
+            self.current = self.current.next
+            return self.current.frame
+        else:
+            return self.current.frame
+
+    def move_next(self) -> None:
+        if self.current.next:
+            self.current = self.current.next
+
+    def move_prev(self) -> None:
+        if self.current.prev:
+            self.current = self.current.prev
+
     ### Private Functions ###
+
     def _append(self, frame: Image, index: int) -> None:
         node = VideoNode(frame, index)
         if self.head:

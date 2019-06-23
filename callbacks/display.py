@@ -1,4 +1,4 @@
-from PIL import ImageTk
+from PIL import Image, ImageTk
 import tkinter as tk
 from video import Video
 from time import sleep
@@ -12,18 +12,20 @@ lock_display = Lock()
 # UTILITIES
 
 
+def _display_frame(frame: Image, panel: tk.Label) -> None:
+    frame = ImageTk.PhotoImage(frame)
+    panel.configure(image=frame)
+    panel.image = frame
+
+
 def _forward_frame(video: Video, panel: tk.Label) -> None:
     next_frame = video.get_next()
-    next_frame = ImageTk.PhotoImage(next_frame)
-    panel.configure(image=next_frame)
-    panel.image = next_frame
+    _display_frame(next_frame, panel)
 
 
 def _reverse_frame(video: Video, panel: tk.Label) -> None:
     prev_frame = video.get_prev()
-    prev_frame = ImageTk.PhotoImage(prev_frame)
-    panel.configure(image=prev_frame)
-    panel.image = prev_frame
+    _display_frame(prev_frame, panel)
 
 
 def _annotate_frame(video: Video, y_coordinate: float, lane_distances: list) -> None:
@@ -33,8 +35,6 @@ def _annotate_frame(video: Video, y_coordinate: float, lane_distances: list) -> 
         y_coordinate = 1.0
     y_coordinate = round(y_coordinate, 2)
     print("[", video.current.index, "]: ", "height = ", y_coordinate)
-
-# CALLBACKS
 
 
 def _annotate_loop(event: tk.Event, video: Video, panel: tk.Label, root: tk.Tk) -> None:
@@ -47,7 +47,7 @@ def _annotate_loop(event: tk.Event, video: Video, panel: tk.Label, root: tk.Tk) 
             root.after(1, _annotate_loop, event, video, panel, root)
 
 
-def cb_lclick_pressed(event: tk.Event, video: Video, panel: tk.Label, root: tk.Tk) -> None:
+def lclick_pressed(event: tk.Event, video: Video, panel: tk.Label, root: tk.Tk) -> None:
     global forwarding
 
     with lock_display:
@@ -55,7 +55,7 @@ def cb_lclick_pressed(event: tk.Event, video: Video, panel: tk.Label, root: tk.T
     _annotate_loop(event, video, panel, root)
 
 
-def cb_lclick_released(event: tk.Event) -> None:
+def lclick_released(event: tk.Event) -> None:
     global forwarding
 
     if DEBUG:
@@ -64,15 +64,19 @@ def cb_lclick_released(event: tk.Event) -> None:
         forwarding = False
 
 
-def cb_rclick_pressed(event: tk.Event, video: Video, panel: tk.Label) -> None:
+def rclick_pressed(event: tk.Event, video: Video, panel: tk.Label) -> None:
     if DEBUG:
         print("[{}]cb_reverse_frame: Next Frame: {}" .format(
             video.current.index, video.current.prev.index))
     _reverse_frame(video, panel)
 
 
-def cb_scrolled(event: tk.Event, video: Video, panel: tk.Label) -> None:
+def scrolled(event: tk.Event, video: Video, panel: tk.Label, n_frames_skip: int = 1) -> None:
     if event.delta > 0:
-        _forward_frame(video, panel)
+        for _ in range(n_frames_skip):
+            video.move_next()
     else:
-        _reverse_frame(video, panel)
+        for _ in range(n_frames_skip):
+            video.move_prev()
+    frame_current = video.get_curr()
+    _display_frame(frame_current, panel)
