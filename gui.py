@@ -4,7 +4,7 @@ from PIL import ImageTk, Image
 import numpy as numpy
 
 from callbacks import display
-from video import Video
+from video_tk import VideoTk
 
 
 def main():
@@ -12,7 +12,7 @@ def main():
     window = tk.Tk(className="Main Window")
 
     # Read in video.
-    video = Video("test.mp4")
+    video = VideoTk("test.mp4")
 
     # Declaring widgets.
     img = video.get_curr()
@@ -20,9 +20,13 @@ def main():
     panel = tk.Label(window, image=img)
     panel.pack()
 
+    progress_bar = tk.Canvas(
+        window, height=20, width=video.shape[1], bg="grey", relief=tk.SUNKEN)
+    progress_bar.pack()
+
     # Binding callbacks.
     panel.bind("<Button-1>", lambda event,
-               video=video, panel=panel, root=window: display.lclick_pressed(event, video, panel, root))
+               video=video, panel=panel, root=window, progress_bar=progress_bar: display.lclick_pressed(event, video, panel, root, progress_bar))
     panel.bind("<ButtonRelease-1>",
                lambda event: display.lclick_released(event))
     panel.bind("<MouseWheel>", lambda event,

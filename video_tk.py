@@ -8,7 +8,7 @@ DEBUG = True
 # Node to hold each frame in the doubly-linked list.
 
 
-class VideoNode:
+class VideoTkNode:
     def __init__(self, frame: Image, index: int):
         self.frame = frame
         self. index = index
@@ -17,7 +17,7 @@ class VideoNode:
 
 
 # Doubly-Linked list to hold video.
-class Video:
+class VideoTk:
     def __init__(self, path: str):
         global DEBUG
 
@@ -81,7 +81,7 @@ class Video:
     ### Private Functions ###
 
     def _append(self, frame: Image, index: int) -> None:
-        node = VideoNode(frame, index)
+        node = VideoTkNode(frame, index)
         if self.head:
             self.tail.next = node
             node.prev = self.tail
