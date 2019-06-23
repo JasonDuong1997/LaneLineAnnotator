@@ -32,10 +32,10 @@ class Video:
         self.current = None
         self.tail = None
         self.n_frames = 0
-
-        total_n_frames = int(self.video_file.get(cv2.CAP_PROP_FRAME_COUNT))
+        self.shape = (0, 0,)  # height, width
 
         # Convert video file into doubly-linked list.
+        total_n_frames = int(self.video_file.get(cv2.CAP_PROP_FRAME_COUNT))
         for i in range(total_n_frames):
             self._append(self._get_frame(), i)
             self.n_frames += 1
@@ -44,6 +44,7 @@ class Video:
             print("There was some error in reading the file")
             print("Video File Frames: {}, Video Object Frames: {}"
                   .format(total_n_frames, self.n_frames))
+        self.current = self.head
         if DEBUG:
             elapsed_time = round(time.time() - start_time, 2)
             print("video: Elapsed time: {} s"
@@ -53,22 +54,17 @@ class Video:
 
     ### Public Functions ###
     def get_next(self) -> Image:
-        if self.current:
-            if self.current.next:
-                self.current = self.current.next
-                return self.current.frame
-            else:
-                return None
+        if self.current and self.current.next:
+            self.current = self.current.next
+            return self.current.frame
         else:
-            self.current = self.head
             return self.current.frame
 
     def get_prev(self) -> Image:
-        if self.current:
+        if self.current and self.current.prev:
             self.current = self.current.prev
             return self.current.frame
         else:
-            self.current = self.tail
             return self.current.frame
 
     ### Private Functions ###
@@ -81,6 +77,8 @@ class Video:
         else:
             self.head = node
             self.tail = node
+            # update height, width
+            self.shape = (node.frame.height, node.frame.width)
 
     def _get_frame(self) -> Image:
         success, frame = self.video_file.read()
